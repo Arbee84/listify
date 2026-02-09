@@ -1,0 +1,100 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Account {
+  id           Int       @id @default(autoincrement()) @map("account_id")
+  email        String    @unique
+  password     String
+  username     String    @unique
+  dateOfBirth  DateTime  @map("date_of_birth")
+  sex          String    @default("Not Selected")
+  countryId    Int       @map("country_id")
+  country      Country   @relation(fields: [countryId], references: [id])
+  visibilityId Int       @default(1) @map("visibility_id")
+  darkMode     Boolean   @default(false) @map("dark_mode")
+  jwtToken     String?   @map("jwt_token")
+  tokenVersion Int       @default(0) @map("token_version")
+  state        String    @default("active")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  lists        ListMeta[]
+
+  @@map("accounts")
+}
+
+model Country {
+  id       Int       @id @default(autoincrement()) @map("country_id")
+  name     String    @unique
+  accounts Account[]
+
+  @@map("countries")
+}
+
+model Category {
+  id            Int            @id @default(autoincrement()) @map("category_id")
+  categoryName  String         @unique @map("category_name")
+  subcategories Subcategory[]
+  lists         ListMeta[]
+
+  @@map("categories")
+}
+
+model Subcategory {
+  id              Int        @id @default(autoincrement()) @map("subcategory_id")
+  subcategoryName String     @unique @map("subcategory_name")
+  categoryId      Int        @map("category_id")
+  popular         Boolean    @default(false)
+  category        Category   @relation(fields: [categoryId], references: [id])
+  lists           ListMeta[]
+
+  @@map("subcategories")
+}
+
+model ListMeta {
+  id            Int          @id @default(autoincrement()) @map("list_id")
+  accountId     Int          @map("account_id")
+  categoryId    Int          @map("category_id")
+  subcategoryId Int          @map("subcategory_id")
+  visibilityId  Int          @default(1) @map("visibility_id")
+  state         Boolean      @default(true)
+  creationDate  DateTime     @default(now()) @map("creation_date")
+  modDate       DateTime     @updatedAt @map("mod_date")
+
+  account       Account      @relation(fields: [accountId], references: [id])
+  category      Category     @relation(fields: [categoryId], references: [id])
+  subcategory   Subcategory  @relation(fields: [subcategoryId], references: [id])
+  listItems     ListItem[]
+
+  @@unique([accountId, categoryId, subcategoryId])
+  @@map("lists_meta")
+}
+
+model Item {
+  id        Int        @id @default(autoincrement()) @map("item_id")
+  itemName  String     @unique @map("item_name")
+  listItems ListItem[]
+
+  @@map("items")
+}
+
+model ListItem {
+  id       Int      @id @default(autoincrement())
+  listId   Int      @map("list_id")
+  itemId   Int      @map("item_id")
+  listRank Int      @map("list_rank")
+
+  list     ListMeta @relation(fields: [listId], references: [id], onDelete: Cascade)
+  item     Item     @relation(fields: [itemId], references: [id])
+
+  @@unique([listId, listRank])
+  @@map("lists")
+}

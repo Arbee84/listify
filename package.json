@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:safe": "taskkill /F /IM node.exe 2>nul || true && timeout /t 1 /nobreak >nul && next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

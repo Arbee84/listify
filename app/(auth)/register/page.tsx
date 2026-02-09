@@ -3,11 +3,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
 
 interface Country {
@@ -28,7 +23,6 @@ export default function RegisterPage() {
   const [countries, setCountries] = useState<Country[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
-  // Fetch countries on mount
   useEffect(() => {
     fetch('/api/countries')
       .then((res) => res.json())
@@ -41,7 +35,6 @@ export default function RegisterPage() {
     setIsLoading(true)
 
     try {
-      // Construct date of birth
       const dateOfBirth = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`)
 
       const response = await fetch('/api/auth/register', {
@@ -65,8 +58,9 @@ export default function RegisterPage() {
       }
 
       toast.success('Account created successfully!')
-      router.push('/home')
-      router.refresh()
+      setTimeout(() => {
+        window.location.href = '/home'
+      }, 500)
     } catch (error) {
       console.error('Registration error:', error)
       toast.error('An error occurred. Please try again.')
@@ -75,7 +69,6 @@ export default function RegisterPage() {
     }
   }
 
-  // Generate arrays for day, month, year
   const days = Array.from({ length: 31 }, (_, i) => i + 1)
   const months = [
     { value: '1', label: 'January' },
@@ -95,20 +88,19 @@ export default function RegisterPage() {
   const years = Array.from({ length: 100 }, (_, i) => currentYear - i)
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4">
-      <Card className="w-full max-w-2xl">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Create an Account</CardTitle>
-          <CardDescription className="text-center">
-            Join Listify and start discovering your next favorites
-          </CardDescription>
-        </CardHeader>
+    <div className="auth-container">
+      <div className="auth-card">
+        <div className="auth-header">
+          <h1>Create an Account</h1>
+          <p>Join Listify and start discovering your next favorites</p>
+        </div>
+
         <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email *</Label>
-                <Input
+          <div className="auth-body">
+            <div className="form-row two-col">
+              <div className="form-group">
+                <label htmlFor="email">Email *</label>
+                <input
                   id="email"
                   type="email"
                   placeholder="you@example.com"
@@ -118,9 +110,9 @@ export default function RegisterPage() {
                   disabled={isLoading}
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="username">Username *</Label>
-                <Input
+              <div className="form-group">
+                <label htmlFor="username">Username *</label>
+                <input
                   id="username"
                   type="text"
                   placeholder="johndoe"
@@ -132,115 +124,82 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">Password *</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Must contain uppercase, lowercase, number, and special character"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={isLoading}
-              />
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                At least 6 characters with uppercase, lowercase, number, and special character
-              </p>
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="password">Password *</label>
+                <input
+                  id="password"
+                  type="password"
+                  placeholder="Must contain uppercase, lowercase, number, and special character"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={isLoading}
+                />
+                <p style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginTop: '0.25rem' }}>
+                  At least 6 characters with uppercase, lowercase, number, and special character
+                </p>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label>Date of Birth *</Label>
-              <div className="grid grid-cols-3 gap-2">
-                <Select value={day} onValueChange={setDay} disabled={isLoading} required>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Day" />
-                  </SelectTrigger>
-                  <SelectContent>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Date of Birth *</label>
+                <div className="form-row three-col">
+                  <select value={day} onChange={(e) => setDay(e.target.value)} disabled={isLoading} required>
+                    <option value="">Day</option>
                     {days.map((d) => (
-                      <SelectItem key={d} value={d.toString()}>
-                        {d}
-                      </SelectItem>
+                      <option key={d} value={d}>{d}</option>
                     ))}
-                  </SelectContent>
-                </Select>
-
-                <Select value={month} onValueChange={setMonth} disabled={isLoading} required>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Month" />
-                  </SelectTrigger>
-                  <SelectContent>
+                  </select>
+                  <select value={month} onChange={(e) => setMonth(e.target.value)} disabled={isLoading} required>
+                    <option value="">Month</option>
                     {months.map((m) => (
-                      <SelectItem key={m.value} value={m.value}>
-                        {m.label}
-                      </SelectItem>
+                      <option key={m.value} value={m.value}>{m.label}</option>
                     ))}
-                  </SelectContent>
-                </Select>
-
-                <Select value={year} onValueChange={setYear} disabled={isLoading} required>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Year" />
-                  </SelectTrigger>
-                  <SelectContent>
+                  </select>
+                  <select value={year} onChange={(e) => setYear(e.target.value)} disabled={isLoading} required>
+                    <option value="">Year</option>
                     {years.map((y) => (
-                      <SelectItem key={y} value={y.toString()}>
-                        {y}
-                      </SelectItem>
+                      <option key={y} value={y}>{y}</option>
                     ))}
-                  </SelectContent>
-                </Select>
+                  </select>
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="sex">Sex *</Label>
-                <Select value={sex} onValueChange={setSex} disabled={isLoading} required>
-                  <SelectTrigger id="sex">
-                    <SelectValue placeholder="Select sex" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Male">Male</SelectItem>
-                    <SelectItem value="Female">Female</SelectItem>
-                    <SelectItem value="Other">Other</SelectItem>
-                    <SelectItem value="Not Selected">Prefer not to say</SelectItem>
-                  </SelectContent>
-                </Select>
+            <div className="form-row two-col">
+              <div className="form-group">
+                <label htmlFor="sex">Sex *</label>
+                <select id="sex" value={sex} onChange={(e) => setSex(e.target.value)} disabled={isLoading} required>
+                  <option value="">Select sex</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Not Selected">Prefer not to say</option>
+                </select>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="country">Country *</Label>
-                <Select value={countryId} onValueChange={setCountryId} disabled={isLoading} required>
-                  <SelectTrigger id="country">
-                    <SelectValue placeholder="Select country" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {countries.map((country) => (
-                      <SelectItem key={country.id} value={country.id.toString()}>
-                        {country.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="form-group">
+                <label htmlFor="country">Country *</label>
+                <select id="country" value={countryId} onChange={(e) => setCountryId(e.target.value)} disabled={isLoading} required>
+                  <option value="">Select country</option>
+                  {countries.map((country) => (
+                    <option key={country.id} value={country.id}>{country.name}</option>
+                  ))}
+                </select>
               </div>
             </div>
-          </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={isLoading}>
+          </div>
+
+          <div className="auth-footer">
+            <button type="submit" style={{ width: '100%' }} disabled={isLoading}>
               {isLoading ? 'Creating account...' : 'Create Account'}
-            </Button>
-            <p className="text-sm text-center text-gray-600 dark:text-gray-400">
-              Already have an account?{' '}
-              <Link
-                href="/login"
-                className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
-              >
-                Log in
-              </Link>
+            </button>
+            <p className="auth-footer-text">
+              Already have an account? <Link href="/login" className="auth-link">Log in</Link>
             </p>
-          </CardFooter>
+          </div>
         </form>
-      </Card>
+      </div>
     </div>
   )
 }

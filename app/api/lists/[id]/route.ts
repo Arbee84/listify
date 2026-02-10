@@ -4,7 +4,7 @@ import { getSession } from '@/lib/auth'
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getSession()
@@ -13,7 +13,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const listId = parseInt(params.id)
+    const { id } = await params
+    const listId = parseInt(id)
 
     if (isNaN(listId)) {
       return NextResponse.json({ error: 'Invalid list ID' }, { status: 400 })
@@ -52,7 +53,7 @@ export async function DELETE(
 // PATCH - Update list visibility
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getSession()
@@ -61,7 +62,8 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const listId = parseInt(params.id)
+    const { id } = await params
+    const listId = parseInt(id)
 
     if (isNaN(listId)) {
       return NextResponse.json({ error: 'Invalid list ID' }, { status: 400 })

@@ -1,9 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { verifyToken } from './lib/auth'
-
-// Use Node.js runtime instead of Edge runtime
-export const runtime = 'nodejs'
+import { verifyToken } from './lib/auth-edge'
 
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get('auth_token')?.value
